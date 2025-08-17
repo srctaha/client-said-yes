@@ -1,0 +1,17 @@
+baseURL = 'https://srctaha.github.io/'
+languageCode = "en-us"
+title = "Client Said Yes (To the Wrong Thing)"
+copyright = "Copyright © 2025 Sercan Ahi. All rights reserved."
+theme = ["PaperMod"]
+
+[params]
+  description = "Personal log"
+
+  [params.author]
+    name = "Sercan Ahi"
+    email = "you@example.com"
+    twitter = "@YourXHandle"
+
+  [params.meta]
+    favicon = false
+    svg = true

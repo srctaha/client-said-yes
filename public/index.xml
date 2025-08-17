@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Client Said Yes (To the Wrong Thing)</title>
+    <link>http://localhost:1313/</link>
+    <description>Recent content on Client Said Yes (To the Wrong Thing)</description>
+    <generator>Hugo -- 0.148.2</generator>
+    <language>en-us</language>
+    <managingEditor>you@example.com (Sercan Ahi)</managingEditor>
+    <webMaster>you@example.com (Sercan Ahi)</webMaster>
+    <copyright>Copyright © 2025 Sercan Ahi. All rights reserved.</copyright>
+    <lastBuildDate>Sat, 16 Aug 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Delta Lake Lineage Essentials in Databricks Unity Catalog</title>
+      <link>http://localhost:1313/posts/delta-lake-lineage/</link>
+      <pubDate>Sat, 16 Aug 2025 00:00:00 +0000</pubDate><author>you@example.com (Sercan Ahi)</author>
+      <guid>http://localhost:1313/posts/delta-lake-lineage/</guid>
+      <description>&lt;p&gt;As teams build data products on Databricks Unity Catalog (UC), one question always comes up:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;&amp;ldquo;How do we track which tables feed into which outputs?&amp;rdquo;&lt;/em&gt;&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;This post summarizes the essentials of &lt;strong&gt;Delta Lake lineage&lt;/strong&gt; in a Unity Catalog–enabled Databricks workspace.&lt;/p&gt;
+&lt;h2 id=&#34;delta-lake--parquet--_delta_log&#34;&gt;Delta Lake = Parquet + &lt;code&gt;_delta_log&lt;/code&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Delta Lake is an open-source storage layer that enables Databricks Workspaces and other platforms to reliably manage &lt;strong&gt;Delta Tables&lt;/strong&gt; with ACID transactions and governance features.&lt;/li&gt;
+&lt;li&gt;A Delta Table is the fundamental storage unit of Delta Lake, a Parquet-based table enhanced with a transaction log (&lt;code&gt;_delta_log&lt;/code&gt;) that brings database-like reliability and auditability to data lake.&lt;/li&gt;
+&lt;li&gt;Think of Delta Lake like an &lt;em&gt;operating system&lt;/em&gt;, and Delta Tables like the &lt;em&gt;files&lt;/em&gt; it manages.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;A Delta Table is:&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
