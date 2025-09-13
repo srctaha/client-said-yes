@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>From Difference-in-Differences to Synthetic Control: Rethinking Card &amp; Krueger (1994) | Client Said Yes (To the Wrong Thing)</title>
+<meta name="keywords" content="">
+<meta name="description" content="First, a big thank you to Aaron Mamula&rsquo;s thoughtful replication of Card &amp; Krueger&rsquo;s classic 1994 minimum-wage study. His R-based walk-through of the survey data, regression results, and sensitivity checks are clear and pedagogically valuable. Whether you are a newcomer to the causal inference research literature, or a data analytics professional interested in transparent, reproducible workflows, Aaron&rsquo;s replication is one of the best references. It shows how careful design and open code can bring an iconic study back to life.">
+<meta name="author" content="Sercan Ahi">
+<link rel="canonical" href="http://localhost:1313/posts/rethinking-card-and-krueger/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.8fe10233a706bc87f2e08b3cf97b8bd4c0a80f10675a143675d59212121037c0.css" integrity="sha256-j&#43;ECM6cGvIfy4Is8&#43;XuL1MCoDxBnWhQ2ddWSEhIQN8A=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/rethinking-card-and-krueger/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Client Said Yes (To the Wrong Thing) (Alt + H)">Client Said Yes (To the Wrong Thing)</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      From Difference-in-Differences to Synthetic Control: Rethinking Card &amp; Krueger (1994)
+    </h1>
+    <div class="post-meta"><span title='2025-09-13 00:00:00 +0000 UTC'>September 13, 2025</span>&nbsp;·&nbsp;Sercan Ahi
+
+</div>
+  </header> 
+  <div class="post-content"><p>First, a big thank you to <a href="https://aaronmams.github.io/Card-Krueger-Replication/">Aaron Mamula&rsquo;s thoughtful replication</a> of Card &amp; Krueger&rsquo;s classic 1994 minimum-wage study. His R-based walk-through of the survey data, regression results, and sensitivity checks are clear and pedagogically valuable. Whether you are a newcomer to the causal inference research literature, or a data analytics professional interested in transparent, reproducible workflows, Aaron&rsquo;s replication is one of the best references. It shows how careful design and open code can bring an iconic study back to life.</p>
+<p>Revisiting classical studies like this always raises the same question for me:</p>
+<blockquote>
+<p><em>&ldquo;What would a modern toolkit make of it?&rdquo;</em></p></blockquote>
+<h2 id="why-card--krueger-1994-mattered">Why Card &amp; Krueger (1994) Mattered<a hidden class="anchor" aria-hidden="true" href="#why-card--krueger-1994-mattered">#</a></h2>
+<p>When David Card and Alan Krueger compared fast-food employment in New Jersey (which raised its minimum wage) against Pennsylvania (which did not), their finding was revolutionary: <strong>employment did not fall</strong>. In fact, it rose slightly.</p>
+<p>The study challenged decades of textbook predictions, where a binding minimum wage was assumed to cut jobs. More importantly, it helped launch the <a href="https://en.wikipedia.org/wiki/Credibility_revolution">credibility revolution</a> in economics, a move toward natural experiments and data-driven causal inference.</p>
+<h2 id="the-donor-pool-dilemma">The Donor Pool Dilemma<a hidden class="anchor" aria-hidden="true" href="#the-donor-pool-dilemma">#</a></h2>
+<p>Card &amp; Krueger&rsquo;s design was essentially a <strong>two-state difference-in-differences</strong>. Simple, elegant, but fragile. What if Pennsylvania was not a perfect counterfactual for New Jersey? What if spillovers in border labor markets contaminated the comparison?</p>
+<p>This is where <a href="https://en.wikipedia.org/wiki/Synthetic_control_method">Synthetic Control Method</a> (SCM) can come in. Instead of betting everything on a single comparator, SCM builds a weighted average of multiple donor states, chosen so that their <strong>pre-treatment employment paths</strong> closely resemble New Jersey&rsquo;s. Post-treatment, the divergence between NJ and its <strong>synthetic twin</strong> is interpreted as the policy effect.</p>
+<h2 id="modern-tools-for-a-classic-case">Modern Tools for a Classic Case<a hidden class="anchor" aria-hidden="true" href="#modern-tools-for-a-classic-case">#</a></h2>
+<p>Today, using <a href="https://cran.r-project.org/web/packages/Synth/index.html">Synth</a> in R or <a href="https://github.com/cvxpy/cvxpy">cvxpy</a> in Python, we can:</p>
+<ul>
+<li><strong>Construct synthetic New Jersey</strong>: combining donors like NY, CT, MA, and DE with weights chosen by optimization.</li>
+<li><strong>Match richer predictors</strong>: not just pre-period employment, but industry composition, wage levels, demographic traits.</li>
+<li><strong>Test robustness</strong>: by running placebo SCMs (pretend each donor was treated) and comparing effect sizes.</li>
+<li><strong>Improve inference</strong>: using bootstrap or wild-cluster standard errors rather than simple OLS SEs.</li>
+</ul>
+<p>In other words, SCM does not just re-estimate Card &amp; Krueger, it can even reframe the entire exercise with a different lens on counterfactual construction.</p>
+<h2 id="a-timeline-of-the-debate">A Timeline of the Debate<a hidden class="anchor" aria-hidden="true" href="#a-timeline-of-the-debate">#</a></h2>
+<p>The Card &amp; Krueger study triggered decades of replications, criticisms, and methodological advances:</p>
+<ul>
+<li>1994: Original NJ vs PA study (<em>Minimum Wages and Employment: A Case Study of the Fast-Food Industry in New Jersey and Pennsylvania</em>) finds no job loss.</li>
+<li>2000: Neumark &amp; Wascher study (Minimum Wages and Employment: A Case Study of the Fast-Food Industry in New Jersey and Pennsylvania: Comment) finds job losses using payroll data.</li>
+<li>2000: Card &amp; Krueger response (Minimum Wages and Employment: A Case Study of the Fast-Food Industry in New Jersey and Pennsylvania: Reply) reanalyze same payroll data and conclude that results hinge on specification.</li>
+<li>2010s: Meta-analyses &amp; new causal inference tools hint that most effects found to be small.</li>
+<li>2021: David Card wins Nobel Prize, and this study becomes emblematic of economics&rsquo; empirical turn.</li>
+</ul>
+<h2 id="show-me-some-code">Show Me Some Code<a hidden class="anchor" aria-hidden="true" href="#show-me-some-code">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Synthetic Control in Python with CVXPy (L2 + optional ridge).&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> Iterable, Sequence
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> cvxpy <span style="color:#66d9ef">as</span> cp
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> numpy <span style="color:#66d9ef">as</span> np
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> pandas <span style="color:#66d9ef">as</span> pd
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_fake_panel</span>(
+</span></span><span style="display:flex;"><span>    treated: str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;NJ&#34;</span>,
+</span></span><span style="display:flex;"><span>    donors: Sequence[str] <span style="color:#f92672">=</span> (<span style="color:#e6db74">&#34;NY&#34;</span>, <span style="color:#e6db74">&#34;CT&#34;</span>, <span style="color:#e6db74">&#34;MA&#34;</span>, <span style="color:#e6db74">&#34;DE&#34;</span>, <span style="color:#e6db74">&#34;MD&#34;</span>),
+</span></span><span style="display:flex;"><span>    years: Iterable[int] <span style="color:#f92672">=</span> range(<span style="color:#ae81ff">1989</span>, <span style="color:#ae81ff">1995</span>),
+</span></span><span style="display:flex;"><span>    treat_start: int <span style="color:#f92672">=</span> <span style="color:#ae81ff">1992</span>,
+</span></span><span style="display:flex;"><span>    effect_size: float <span style="color:#f92672">=</span> <span style="color:#ae81ff">1.0</span>,
+</span></span><span style="display:flex;"><span>    seed: int <span style="color:#f92672">=</span> <span style="color:#ae81ff">42</span>,
+</span></span><span style="display:flex;"><span>) <span style="color:#f92672">-&gt;</span> pd<span style="color:#f92672">.</span>DataFrame:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;Create a toy panel dataset reminiscent of Card–Krueger.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - The dataset has one treated unit (e.g., &#39;NJ&#39;) and
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        several donor units, such as &#39;NY&#39; or &#39;CT&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - The outcome is &#39;employment&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - We also fabricate two time-invariant covariates per unit:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &#39;avg_wage_pre&#39; and &#39;industry_share&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &#39;industry_share&#39; could mean share of establishments in a target industry
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Dynamics (per unit i, year t):
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        y_{i,t} = base_i + slope_i * t_idx + smooth_trend_t + eps_{i,t}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                  + effect_size * 1[i=treated] * 1[t &gt;= treat_start]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Args
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    ----
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    treated (str): Name of the treated unit
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    donors (Sequence[str]): Names of donor units (untreated)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    years (Iterable[int]): Sequence of integer years (e.g., 1989..1994)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    treat_start (int): First year in which the treatment takes effect
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        for the treated unit
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    effect_size (float): Additive treatment effect applied to the treated unit
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        in post-treatment years
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    seed (int): Random seed for reproducibility
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Returns
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -------
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    pd.DataFrame: Long-form panel
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    rng <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>default_rng(seed)
+</span></span><span style="display:flex;"><span>    years <span style="color:#f92672">=</span> list(int(y) <span style="color:#66d9ef">for</span> y <span style="color:#f92672">in</span> years)
+</span></span><span style="display:flex;"><span>    year_idx <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>array(years) <span style="color:#f92672">-</span> min(years)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">gen_series</span>(base: float, slope: float) <span style="color:#f92672">-&gt;</span> np<span style="color:#f92672">.</span>ndarray:
+</span></span><span style="display:flex;"><span>        eps <span style="color:#f92672">=</span> rng<span style="color:#f92672">.</span>normal(<span style="color:#ae81ff">0.0</span>, <span style="color:#ae81ff">0.8</span>, size<span style="color:#f92672">=</span>len(years))
+</span></span><span style="display:flex;"><span>        smooth <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>linspace(<span style="color:#ae81ff">0.0</span>, <span style="color:#ae81ff">1.2</span>, len(years))
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> base <span style="color:#f92672">+</span> slope <span style="color:#f92672">*</span> year_idx <span style="color:#f92672">+</span> smooth <span style="color:#f92672">+</span> eps
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    rows: list[dict] <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> u <span style="color:#f92672">in</span> (treated, <span style="color:#f92672">*</span>donors):
+</span></span><span style="display:flex;"><span>        base <span style="color:#f92672">=</span> rng<span style="color:#f92672">.</span>normal(<span style="color:#ae81ff">30.0</span>, <span style="color:#ae81ff">2.5</span>)
+</span></span><span style="display:flex;"><span>        slope <span style="color:#f92672">=</span> rng<span style="color:#f92672">.</span>normal(<span style="color:#ae81ff">0.20</span>, <span style="color:#ae81ff">0.05</span>)
+</span></span><span style="display:flex;"><span>        y <span style="color:#f92672">=</span> gen_series(base, slope)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Apply a positive treatment effect to the treated unit</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># from treat_start onward</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> u <span style="color:#f92672">==</span> treated:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> i, yr <span style="color:#f92672">in</span> enumerate(years):
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> yr <span style="color:#f92672">&gt;=</span> treat_start:
+</span></span><span style="display:flex;"><span>                    y[i] <span style="color:#f92672">+=</span> effect_size
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Time-invariant covariates for this toy example</span>
+</span></span><span style="display:flex;"><span>        avg_wage_pre <span style="color:#f92672">=</span> rng<span style="color:#f92672">.</span>normal(<span style="color:#ae81ff">8.2</span>, <span style="color:#ae81ff">0.4</span>)
+</span></span><span style="display:flex;"><span>        industry_share <span style="color:#f92672">=</span> rng<span style="color:#f92672">.</span>uniform(<span style="color:#ae81ff">0.25</span>, <span style="color:#ae81ff">0.55</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> n_yr, yr <span style="color:#f92672">in</span> enumerate(years):
+</span></span><span style="display:flex;"><span>            rows<span style="color:#f92672">.</span>append(
+</span></span><span style="display:flex;"><span>                {
+</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">&#34;unit&#34;</span>: u,
+</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">&#34;year&#34;</span>: int(yr),
+</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">&#34;employment&#34;</span>: float(y[n_yr]),
+</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">&#34;avg_wage_pre&#34;</span>: float(avg_wage_pre),
+</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">&#34;industry_share&#34;</span>: float(industry_share),
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> pd<span style="color:#f92672">.</span>DataFrame(rows)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">assemble_design</span>(
+</span></span><span style="display:flex;"><span>    df: pd<span style="color:#f92672">.</span>DataFrame,
+</span></span><span style="display:flex;"><span>    treated: str,
+</span></span><span style="display:flex;"><span>    donors: Sequence[str],
+</span></span><span style="display:flex;"><span>    pre_years: Sequence[int],
+</span></span><span style="display:flex;"><span>    covariate_cols: Sequence[str] <span style="color:#f92672">=</span> (<span style="color:#e6db74">&#34;avg_wage_pre&#34;</span>, <span style="color:#e6db74">&#34;industry_share&#34;</span>),
+</span></span><span style="display:flex;"><span>) <span style="color:#f92672">-&gt;</span> tuple[pd<span style="color:#f92672">.</span>DataFrame, pd<span style="color:#f92672">.</span>DataFrame, list[str]]:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;Build the SCM predictor design and wide outcome matrices.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Args
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    ----
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    df (pd.DataFrame): Long-form panel
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    treated (str): Name of the treated unit in `df[&#39;unit&#39;]`
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    donors (Sequence[str]): Names of donor units
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    pre_years (Sequence[int]): Years used to build pre-treatment predictors
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    covariate_cols (Sequence[str]): Additional predictors
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Returns
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -------
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    tuple[pd.DataFrame, pd.DataFrame, list[str]]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        - design: unit-indexed DataFrame with predictor columns
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        - Y_wide: unit x year wide matrix of the outcome &#39;employment&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        - predictor_cols: list of predictor column names in `design`
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Wide outcomes: one column per year</span>
+</span></span><span style="display:flex;"><span>    Y_wide <span style="color:#f92672">=</span> df<span style="color:#f92672">.</span>pivot(index<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;unit&#34;</span>, columns<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;year&#34;</span>, values<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;employment&#34;</span>)
+</span></span><span style="display:flex;"><span>    Y_wide<span style="color:#f92672">.</span>columns <span style="color:#f92672">=</span> [<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Y_</span><span style="color:#e6db74">{</span>c<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> Y_wide<span style="color:#f92672">.</span>columns]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Covariates: take first observed per unit</span>
+</span></span><span style="display:flex;"><span>    covars <span style="color:#f92672">=</span> (
+</span></span><span style="display:flex;"><span>        df[[<span style="color:#e6db74">&#34;unit&#34;</span>, <span style="color:#f92672">*</span>covariate_cols]]
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span>drop_duplicates(<span style="color:#e6db74">&#34;unit&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">.</span>set_index(<span style="color:#e6db74">&#34;unit&#34;</span>)
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Join into a single design matrix</span>
+</span></span><span style="display:flex;"><span>    design <span style="color:#f92672">=</span> Y_wide<span style="color:#f92672">.</span>join(covars, how<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;left&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Pre-treatment trajectory predictors</span>
+</span></span><span style="display:flex;"><span>    pre_cols <span style="color:#f92672">=</span> [<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Y_</span><span style="color:#e6db74">{</span>t<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#66d9ef">for</span> t <span style="color:#f92672">in</span> pre_years]
+</span></span><span style="display:flex;"><span>    predictor_cols <span style="color:#f92672">=</span> [<span style="color:#f92672">*</span>pre_cols, <span style="color:#f92672">*</span>covariate_cols]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Basic checks</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> treated <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> design<span style="color:#f92672">.</span>index:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Treated unit &#39;</span><span style="color:#e6db74">{</span>treated<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39; not found in data.&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> u <span style="color:#f92672">in</span> donors:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> u <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> design<span style="color:#f92672">.</span>index:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Donor unit &#39;</span><span style="color:#e6db74">{</span>u<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39; not found in data.&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> design, Y_wide, predictor_cols
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fit_scm_weights</span>(
+</span></span><span style="display:flex;"><span>    design: pd<span style="color:#f92672">.</span>DataFrame,
+</span></span><span style="display:flex;"><span>    treated: str,
+</span></span><span style="display:flex;"><span>    donors: Sequence[str],
+</span></span><span style="display:flex;"><span>    predictor_cols: Sequence[str],
+</span></span><span style="display:flex;"><span>    alpha: Sequence[float] <span style="color:#f92672">|</span> <span style="color:#66d9ef">None</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>,
+</span></span><span style="display:flex;"><span>    ridge: float <span style="color:#f92672">=</span> <span style="color:#ae81ff">1e-4</span>,
+</span></span><span style="display:flex;"><span>    solver: str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;OSQP&#34;</span>,
+</span></span><span style="display:flex;"><span>) <span style="color:#f92672">-&gt;</span> pd<span style="color:#f92672">.</span>Series:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;Solve SCM weight optimization with an L2 (least-squares) objective.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Objective:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        minimize   ||A (X0 w - X1)||_2^2 + ridge * ||w||_2^2
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        s.t.       sum(w) = 1, w &gt;= 0
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    where:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        - X1 is the treated predictor vector,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        - X0 is the donor predictor matrix,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        - A is a diagonal matrix of predictor importances (alpha).
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Args
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    ----
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    design (pd.DataFrame): Unit-indexed DataFrame containing predictor_cols
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    treated (str): Treated unit name
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    donors (Sequence[str]): Donor unit names (columns/rows must exist in design)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    predictor_cols (Sequence[str]): Names of columns in `design`
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        used as predictors.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    alpha (Sequence[float] | None): Optional predictor importances.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        Length must equal len(predictor_cols).
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        If None, all predictors are weighted equally (1.0).
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    ridge (float): Ridge penalty to stabilize weights (set to 0.0 to disable)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    solver (str): CVXPy solver name (e.g., &#34;OSQP&#34;, &#34;ECOS&#34;, &#34;SCS&#34;).
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Returns
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -------
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    pd.Series: Donor weights indexed by donor unit name (non-negative, sum to 1)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    X1 <span style="color:#f92672">=</span> design<span style="color:#f92672">.</span>loc[treated, predictor_cols]<span style="color:#f92672">.</span>to_numpy(float)  <span style="color:#75715e"># (P,)</span>
+</span></span><span style="display:flex;"><span>    X0 <span style="color:#f92672">=</span> design<span style="color:#f92672">.</span>loc[donors, predictor_cols]<span style="color:#f92672">.</span>to_numpy(float)<span style="color:#f92672">.</span>T  <span style="color:#75715e"># (P x J)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    P, J <span style="color:#f92672">=</span> X0<span style="color:#f92672">.</span>shape
+</span></span><span style="display:flex;"><span>    w <span style="color:#f92672">=</span> cp<span style="color:#f92672">.</span>Variable(J, nonneg<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> alpha <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        A <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>eye(P)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        alpha <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>asarray(alpha, dtype<span style="color:#f92672">=</span>float)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> alpha<span style="color:#f92672">.</span>shape[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">!=</span> P:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">&#34;alpha length must match number of predictors.&#34;</span>)
+</span></span><span style="display:flex;"><span>        A <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>diag(alpha)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    objective <span style="color:#f92672">=</span> cp<span style="color:#f92672">.</span>Minimize(
+</span></span><span style="display:flex;"><span>        cp<span style="color:#f92672">.</span>sum_squares(A <span style="color:#f92672">@</span> (X0 <span style="color:#f92672">@</span> w <span style="color:#f92672">-</span> X1)) <span style="color:#f92672">+</span> ridge <span style="color:#f92672">*</span> cp<span style="color:#f92672">.</span>sum_squares(w)
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    constraints <span style="color:#f92672">=</span> [cp<span style="color:#f92672">.</span>sum(w) <span style="color:#f92672">==</span> <span style="color:#ae81ff">1.0</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    problem <span style="color:#f92672">=</span> cp<span style="color:#f92672">.</span>Problem(objective, constraints)
+</span></span><span style="display:flex;"><span>    problem<span style="color:#f92672">.</span>solve(solver<span style="color:#f92672">=</span>solver)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    w_val <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>clip(w<span style="color:#f92672">.</span>value, <span style="color:#ae81ff">0.0</span>, <span style="color:#66d9ef">None</span>)
+</span></span><span style="display:flex;"><span>    s <span style="color:#f92672">=</span> float(w_val<span style="color:#f92672">.</span>sum()) <span style="color:#66d9ef">if</span> w_val <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span> <span style="color:#66d9ef">else</span> <span style="color:#ae81ff">0.0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> s <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">0.0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Fallback to uniform weights if solver fails or degenerates</span>
+</span></span><span style="display:flex;"><span>        w_val <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>ones(J) <span style="color:#f92672">/</span> J
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        w_val <span style="color:#f92672">=</span> w_val <span style="color:#f92672">/</span> s
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> pd<span style="color:#f92672">.</span>Series(w_val, index<span style="color:#f92672">=</span>list(donors))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">build_synthetic_series</span>(
+</span></span><span style="display:flex;"><span>    Y_wide: pd<span style="color:#f92672">.</span>DataFrame,
+</span></span><span style="display:flex;"><span>    treated: str,
+</span></span><span style="display:flex;"><span>    donors: Sequence[str],
+</span></span><span style="display:flex;"><span>    weights: pd<span style="color:#f92672">.</span>Series,
+</span></span><span style="display:flex;"><span>    all_years: Sequence[int],
+</span></span><span style="display:flex;"><span>) <span style="color:#f92672">-&gt;</span> tuple[pd<span style="color:#f92672">.</span>Series, pd<span style="color:#f92672">.</span>Series]:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;Construct treated and synthetic outcome time series for all years.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Args
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    ----
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Y_wide (pd.DataFrame): Unit x year wide matrix of the outcome &#39;employment&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        (columns named &#39;Y_&lt;year&gt;&#39;)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    treated (str): Treated unit name.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    donors (Sequence[str]): Donor unit names
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    weights (pd.Series): Donor weights
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        (index must match donor names, values sum to 1)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    all_years (Sequence[int]): All years to include in the resulting series
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Returns
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -------
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    tuple[pd.Series, pd.Series]: (treated_series, synthetic_series),
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        both indexed by integer years
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    year_cols <span style="color:#f92672">=</span> [<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Y_</span><span style="color:#e6db74">{</span>y<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#66d9ef">for</span> y <span style="color:#f92672">in</span> all_years]
+</span></span><span style="display:flex;"><span>    treated_series <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>Series(
+</span></span><span style="display:flex;"><span>        Y_wide<span style="color:#f92672">.</span>loc[treated, year_cols]<span style="color:#f92672">.</span>to_numpy(float),
+</span></span><span style="display:flex;"><span>        index<span style="color:#f92672">=</span>list(all_years),
+</span></span><span style="display:flex;"><span>        name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;treated&#34;</span>,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    donor_mat <span style="color:#f92672">=</span> Y_wide<span style="color:#f92672">.</span>loc[donors, year_cols]<span style="color:#f92672">.</span>to_numpy(float)  <span style="color:#75715e"># (J x T)</span>
+</span></span><span style="display:flex;"><span>    synth <span style="color:#f92672">=</span> donor_mat<span style="color:#f92672">.</span>T <span style="color:#f92672">@</span> weights<span style="color:#f92672">.</span>loc[list(donors)]<span style="color:#f92672">.</span>to_numpy()  <span style="color:#75715e"># (T,)</span>
+</span></span><span style="display:flex;"><span>    synthetic_series <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>Series(synth, index<span style="color:#f92672">=</span>list(all_years), name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;synthetic&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> treated_series, synthetic_series
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">placebo_gaps</span>(
+</span></span><span style="display:flex;"><span>    design: pd<span style="color:#f92672">.</span>DataFrame,
+</span></span><span style="display:flex;"><span>    Y_wide: pd<span style="color:#f92672">.</span>DataFrame,
+</span></span><span style="display:flex;"><span>    treated: str,
+</span></span><span style="display:flex;"><span>    donors: Sequence[str],
+</span></span><span style="display:flex;"><span>    predictor_cols: Sequence[str],
+</span></span><span style="display:flex;"><span>    post_years: Sequence[int],
+</span></span><span style="display:flex;"><span>    alpha: Sequence[float] <span style="color:#f92672">|</span> <span style="color:#66d9ef">None</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>,
+</span></span><span style="display:flex;"><span>    ridge: float <span style="color:#f92672">=</span> <span style="color:#ae81ff">1e-4</span>,
+</span></span><span style="display:flex;"><span>    solver: str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;OSQP&#34;</span>,
+</span></span><span style="display:flex;"><span>) <span style="color:#f92672">-&gt;</span> pd<span style="color:#f92672">.</span>DataFrame:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;Compute simple placebo post-treatment gaps by rotating the treated unit.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    For each donor unit d:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      - treat d as if it were the treated unit,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      - fit SCM weights from the remaining units,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      - compute (d_actual - d_synthetic) in post-treatment years.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Args
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    ----
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    design (pd.DataFrame): Unit-indexed DataFrame containing predictor_cols
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Y_wide (pd.DataFrame): Unit x year wide matrix of the outcome &#39;employment&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        (columns &#39;Y_&lt;year&gt;&#39;)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    treated (str): Name of the original treated unit
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    donors (Sequence[str]): Donor unit names
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    predictor_cols (Sequence[str]): Names of columns in `design`
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        used as predictors
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    post_years (Sequence[int]): Post-treatment years used to compute gaps
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    alpha (Sequence[float] | None): Optional predictor importances;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        if None, all predictors weighted equally
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    ridge (float): Ridge penalty for SCM fit
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    solver (str): CVXPy solver name
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Returns
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -------
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    pd.DataFrame: placebo gaps with index=post_years and columns=placebo units
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    gaps <span style="color:#f92672">=</span> {}
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> placebo <span style="color:#f92672">in</span> donors:
+</span></span><span style="display:flex;"><span>        pool <span style="color:#f92672">=</span> [u <span style="color:#66d9ef">for</span> u <span style="color:#f92672">in</span> (treated, <span style="color:#f92672">*</span>donors) <span style="color:#66d9ef">if</span> u <span style="color:#f92672">!=</span> placebo]
+</span></span><span style="display:flex;"><span>        donor_pool <span style="color:#f92672">=</span> [u <span style="color:#66d9ef">for</span> u <span style="color:#f92672">in</span> pool <span style="color:#66d9ef">if</span> u <span style="color:#f92672">!=</span> placebo]
+</span></span><span style="display:flex;"><span>        w_pl <span style="color:#f92672">=</span> fit_scm_weights(
+</span></span><span style="display:flex;"><span>            design<span style="color:#f92672">=</span>design,
+</span></span><span style="display:flex;"><span>            treated<span style="color:#f92672">=</span>placebo,
+</span></span><span style="display:flex;"><span>            donors<span style="color:#f92672">=</span>donor_pool,
+</span></span><span style="display:flex;"><span>            predictor_cols<span style="color:#f92672">=</span>predictor_cols,
+</span></span><span style="display:flex;"><span>            alpha<span style="color:#f92672">=</span>alpha,
+</span></span><span style="display:flex;"><span>            ridge<span style="color:#f92672">=</span>ridge,
+</span></span><span style="display:flex;"><span>            solver<span style="color:#f92672">=</span>solver,
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        year_cols <span style="color:#f92672">=</span> [<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Y_</span><span style="color:#e6db74">{</span>y<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#66d9ef">for</span> y <span style="color:#f92672">in</span> post_years]
+</span></span><span style="display:flex;"><span>        y_trt <span style="color:#f92672">=</span> Y_wide<span style="color:#f92672">.</span>loc[placebo, year_cols]<span style="color:#f92672">.</span>to_numpy(float)  <span style="color:#75715e"># (T_post,)</span>
+</span></span><span style="display:flex;"><span>        y_syn <span style="color:#f92672">=</span> (
+</span></span><span style="display:flex;"><span>            Y_wide
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">.</span>loc[w_pl<span style="color:#f92672">.</span>index, year_cols]
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">.</span>to_numpy(float)<span style="color:#f92672">.</span>T <span style="color:#f92672">@</span> w_pl<span style="color:#f92672">.</span>to_numpy()
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        gaps[placebo] <span style="color:#f92672">=</span> y_trt <span style="color:#f92672">-</span> y_syn
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> pd<span style="color:#f92672">.</span>DataFrame(gaps, index<span style="color:#f92672">=</span>list(post_years))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>() <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;Orchestrate the process.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    1. Create a simple, believable dataset with one treated state (NJ) and
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        several donor states (NY, CT, MA, DE, MD).
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    2. Define what &#34;good matching&#34; means before the policy change
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        (pre-treatment), using the prior years&#39; outcomes and a couple of
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        steady covariates.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    3. Ask an optimizer to build a &#34;synthetic NJ&#34; by combining donors
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        with weights that best reproduce NJ&#39;s pre-treatment behavior.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    4. Compare NJ to its synthetic twin after the policy and
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        read the difference as the policy effect.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    5. As a rough credibility check, we run &#34;placebo&#34; versions
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        of the same exercise, pretending each donor were treated, to see
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        if NJ&#39;s pattern looks special.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 1) Data: a small, realistic toy example</span>
+</span></span><span style="display:flex;"><span>    treated <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;NJ&#34;</span>
+</span></span><span style="display:flex;"><span>    donors <span style="color:#f92672">=</span> (<span style="color:#e6db74">&#34;NY&#34;</span>, <span style="color:#e6db74">&#34;CT&#34;</span>, <span style="color:#e6db74">&#34;MA&#34;</span>, <span style="color:#e6db74">&#34;DE&#34;</span>, <span style="color:#e6db74">&#34;MD&#34;</span>)
+</span></span><span style="display:flex;"><span>    years <span style="color:#f92672">=</span> list(range(<span style="color:#ae81ff">1989</span>, <span style="color:#ae81ff">1995</span>))  <span style="color:#75715e"># 1989–1994</span>
+</span></span><span style="display:flex;"><span>    pre_years <span style="color:#f92672">=</span> (<span style="color:#ae81ff">1989</span>, <span style="color:#ae81ff">1990</span>, <span style="color:#ae81ff">1991</span>)
+</span></span><span style="display:flex;"><span>    post_years <span style="color:#f92672">=</span> (<span style="color:#ae81ff">1992</span>, <span style="color:#ae81ff">1993</span>, <span style="color:#ae81ff">1994</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    df <span style="color:#f92672">=</span> create_fake_panel(
+</span></span><span style="display:flex;"><span>        treated<span style="color:#f92672">=</span>treated,
+</span></span><span style="display:flex;"><span>        donors<span style="color:#f92672">=</span>donors,
+</span></span><span style="display:flex;"><span>        years<span style="color:#f92672">=</span>years,
+</span></span><span style="display:flex;"><span>        treat_start<span style="color:#f92672">=</span><span style="color:#ae81ff">1992</span>,
+</span></span><span style="display:flex;"><span>        effect_size<span style="color:#f92672">=</span><span style="color:#ae81ff">1.0</span>,
+</span></span><span style="display:flex;"><span>        seed<span style="color:#f92672">=</span><span style="color:#ae81ff">123</span>,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 2) Predictors: match the past to predict a better counterfactual</span>
+</span></span><span style="display:flex;"><span>    design, Y_wide, predictor_cols <span style="color:#f92672">=</span> assemble_design(
+</span></span><span style="display:flex;"><span>        df<span style="color:#f92672">=</span>df, treated<span style="color:#f92672">=</span>treated, donors<span style="color:#f92672">=</span>donors, pre_years<span style="color:#f92672">=</span>pre_years
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Emphasize matching the pre-period outcomes a bit more than covariates</span>
+</span></span><span style="display:flex;"><span>    alpha <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>ones(len(predictor_cols))
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Downweight the last two predictors (our toy covariates)</span>
+</span></span><span style="display:flex;"><span>    alpha[<span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>:] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 3) Fit: let the optimizer choose donor weights</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># that **best match pre-treatment NJ**</span>
+</span></span><span style="display:flex;"><span>    weights: pd<span style="color:#f92672">.</span>Series <span style="color:#f92672">=</span> fit_scm_weights(
+</span></span><span style="display:flex;"><span>        design<span style="color:#f92672">=</span>design,
+</span></span><span style="display:flex;"><span>        treated<span style="color:#f92672">=</span>treated,
+</span></span><span style="display:flex;"><span>        donors<span style="color:#f92672">=</span>donors,
+</span></span><span style="display:flex;"><span>        predictor_cols<span style="color:#f92672">=</span>predictor_cols,
+</span></span><span style="display:flex;"><span>        alpha<span style="color:#f92672">=</span>alpha,
+</span></span><span style="display:flex;"><span>        ridge<span style="color:#f92672">=</span><span style="color:#ae81ff">1e-4</span>,
+</span></span><span style="display:flex;"><span>        solver<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;OSQP&#34;</span>,
+</span></span><span style="display:flex;"><span>    )<span style="color:#f92672">.</span>sort_values(ascending<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;Donor weights (how much each state contributes to &#39;synthetic NJ&#39;):&#34;</span>)
+</span></span><span style="display:flex;"><span>    print(weights<span style="color:#f92672">.</span>round(<span style="color:#ae81ff">3</span>), end<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n\n</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 4) Effect: compare actual NJ to synthetic NJ after the policy</span>
+</span></span><span style="display:flex;"><span>    treated_series, synthetic_series <span style="color:#f92672">=</span> build_synthetic_series(
+</span></span><span style="display:flex;"><span>        Y_wide<span style="color:#f92672">=</span>Y_wide,
+</span></span><span style="display:flex;"><span>        treated<span style="color:#f92672">=</span>treated,
+</span></span><span style="display:flex;"><span>        donors<span style="color:#f92672">=</span>donors,
+</span></span><span style="display:flex;"><span>        weights<span style="color:#f92672">=</span>weights,
+</span></span><span style="display:flex;"><span>        all_years<span style="color:#f92672">=</span>years,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    gaps_post <span style="color:#f92672">=</span> (treated_series <span style="color:#f92672">-</span> synthetic_series)<span style="color:#f92672">.</span>loc[list(post_years)]
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;Post-treatment gaps (Treated − Synthetic):&#34;</span>)
+</span></span><span style="display:flex;"><span>    print(gaps_post<span style="color:#f92672">.</span>round(<span style="color:#ae81ff">3</span>), end<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n\n</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 5) Placebos: does NJ look special relative to donors treated &#34;as if&#34;?</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># We can compare gaps_post with placebo_df visually or a pseudo p-value,</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># which is not implemented in this script.</span>
+</span></span><span style="display:flex;"><span>    placebo_df <span style="color:#f92672">=</span> placebo_gaps(
+</span></span><span style="display:flex;"><span>        design<span style="color:#f92672">=</span>design,
+</span></span><span style="display:flex;"><span>        Y_wide<span style="color:#f92672">=</span>Y_wide,
+</span></span><span style="display:flex;"><span>        treated<span style="color:#f92672">=</span>treated,
+</span></span><span style="display:flex;"><span>        donors<span style="color:#f92672">=</span>donors,
+</span></span><span style="display:flex;"><span>        predictor_cols<span style="color:#f92672">=</span>predictor_cols,
+</span></span><span style="display:flex;"><span>        post_years<span style="color:#f92672">=</span>post_years,
+</span></span><span style="display:flex;"><span>        alpha<span style="color:#f92672">=</span>alpha,
+</span></span><span style="display:flex;"><span>        ridge<span style="color:#f92672">=</span><span style="color:#ae81ff">1e-4</span>,
+</span></span><span style="display:flex;"><span>        solver<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;OSQP&#34;</span>,
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;Placebo gaps (rows=years, columns=fake-treated donors):&#34;</span>)
+</span></span><span style="display:flex;"><span>    print(placebo_df<span style="color:#f92672">.</span>round(<span style="color:#ae81ff">3</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
+</span></span><span style="display:flex;"><span>    main()
+</span></span></code></pre></div><h2 id="where-this-leaves-us">Where This Leaves Us<a hidden class="anchor" aria-hidden="true" href="#where-this-leaves-us">#</a></h2>
+<p>What I find most inspiring about revisiting Card &amp; Krueger&rsquo;s study, whether through Aaron&rsquo;s replication or through synthetic control extensions, is how it teaches us two timeless lessons:</p>
+<ol>
+<li><strong>Empirical claims live or die by counterfactuals.</strong> Choosing &ldquo;what would have happened otherwise&rdquo; is the central challenge, whether you pick Pennsylvania in 1994 or a convex combination of donors in 2025.</li>
+<li><strong>Methods evolve, debates persist.</strong> Each round of critique and re-analysis strengthens the field and pushes us toward better data, more robust tools, and a more nuanced understanding of the problem at hand.</li>
+</ol>
+<h2 id="closing-thought">Closing Thought<a hidden class="anchor" aria-hidden="true" href="#closing-thought">#</a></h2>
+<p>Card &amp; Krueger (1994) was not just about minimum wages. It was a turning point in how economics asks questions, how it argues with evidence, and how it learns from replication. Aaron Mamula&rsquo;s R-based blog post reminds us that old debates can spark new insights, especially when we apply today&rsquo;s methods to yesterday&rsquo;s puzzles.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>Copyright © 2025 Sercan Ahi. All rights reserved.</span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

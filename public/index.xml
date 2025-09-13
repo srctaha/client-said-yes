@@ -9,8 +9,15 @@
     <managingEditor>you@example.com (Sercan Ahi)</managingEditor>
     <webMaster>you@example.com (Sercan Ahi)</webMaster>
     <copyright>Copyright © 2025 Sercan Ahi. All rights reserved.</copyright>
-    <lastBuildDate>Sat, 16 Aug 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 13 Sep 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>From Difference-in-Differences to Synthetic Control: Rethinking Card &amp; Krueger (1994)</title>
+      <link>http://localhost:1313/posts/rethinking-card-and-krueger/</link>
+      <pubDate>Sat, 13 Sep 2025 00:00:00 +0000</pubDate><author>you@example.com (Sercan Ahi)</author>
+      <guid>http://localhost:1313/posts/rethinking-card-and-krueger/</guid>
+      <description>&lt;p&gt;First, a big thank you to &lt;a href=&#34;https://aaronmams.github.io/Card-Krueger-Replication/&#34;&gt;Aaron Mamula&amp;rsquo;s thoughtful replication&lt;/a&gt; of Card &amp;amp; Krueger&amp;rsquo;s classic 1994 minimum-wage study. His R-based walk-through of the survey data, regression results, and sensitivity checks are clear and pedagogically valuable. Whether you are a newcomer to the causal inference research literature, or a data analytics professional interested in transparent, reproducible workflows, Aaron&amp;rsquo;s replication is one of the best references. It shows how careful design and open code can bring an iconic study back to life.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Delta Lake Lineage Essentials in Databricks Unity Catalog</title>
       <link>http://localhost:1313/posts/delta-lake-lineage/</link>
