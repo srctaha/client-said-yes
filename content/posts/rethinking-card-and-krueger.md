@@ -45,8 +45,10 @@ The Card & Krueger study triggered decades of replications, criticisms, and meth
 
 ## Show Me Some Code
 
+Refer to the `main()` function in the script below to get a sense of what is happening.
+
 ```python
-"""Synthetic Control in Python with CVXPy (L2 + optional ridge)."""
+"""Application of Synthetic Control Method on Card & Krueger (1994)."""
 
 from typing import Iterable, Sequence
 
@@ -63,18 +65,15 @@ def create_fake_panel(
     effect_size: float = 1.0,
     seed: int = 42,
 ) -> pd.DataFrame:
-    """Create a toy panel dataset reminiscent of Card–Krueger.
+    """Create a fake panel dataset reminiscent of Card & Krueger (1994).
 
     - The dataset has one treated unit (e.g., 'NJ') and
         several donor units, such as 'NY' or 'CT'
     - The outcome is 'employment'
     - We also fabricate two time-invariant covariates per unit:
-        'avg_wage_pre' and 'industry_share',
-        'industry_share' could mean share of establishments in a target industry
-
-    Dynamics (per unit i, year t):
-        y_{i,t} = base_i + slope_i * t_idx + smooth_trend_t + eps_{i,t}
-                  + effect_size * 1[i=treated] * 1[t >= treat_start]
+        'avg_wage_pre' and 'industry_share'.
+        avg_wage_pre: average wage in the target industry (before treatment)
+        industry_share: share of establishments in a target industry
 
     Args
     ----
@@ -89,7 +88,7 @@ def create_fake_panel(
 
     Returns
     -------
-    pd.DataFrame: Long-form panel
+    pd.DataFrame: Long-form panel dataset
     """
     rng = np.random.default_rng(seed)
     years = list(int(y) for y in years)
@@ -138,11 +137,11 @@ def assemble_design(
     pre_years: Sequence[int],
     covariate_cols: Sequence[str] = ("avg_wage_pre", "industry_share"),
 ) -> tuple[pd.DataFrame, pd.DataFrame, list[str]]:
-    """Build the SCM predictor design and wide outcome matrices.
+    """Prepare the input tables that SCM needs.
 
     Args
     ----
-    df (pd.DataFrame): Long-form panel
+    df (pd.DataFrame): Long-form panel dataset
     treated (str): Name of the treated unit in `df['unit']`
     donors (Sequence[str]): Names of donor units
     pre_years (Sequence[int]): Years used to build pre-treatment predictors
@@ -151,9 +150,9 @@ def assemble_design(
     Returns
     -------
     tuple[pd.DataFrame, pd.DataFrame, list[str]]
-        - design: unit-indexed DataFrame with predictor columns
-        - Y_wide: unit x year wide matrix of the outcome 'employment'
-        - predictor_cols: list of predictor column names in `design`
+        - design: table of predictors for each unit (used to fit weights)
+        - Y_wide: table of employment by unit-year (used to build trajectories)
+        - predictor_cols: list of predictor column names
     """
     # Wide outcomes: one column per year
     Y_wide = df.pivot(index="unit", columns="year", values="employment")
@@ -195,8 +194,8 @@ def fit_scm_weights(
     """Solve SCM weight optimization with an L2 (least-squares) objective.
 
     Objective:
-        minimize   ||A (X0 w - X1)||_2^2 + ridge * ||w||_2^2
-        s.t.       sum(w) = 1, w >= 0
+        minimize ||A (X0 w - X1)||_2^2 + ridge * ||w||_2^2
+        s.t.     sum(w) = 1, w >= 0
 
     where:
         - X1 is the treated predictor vector,
@@ -359,9 +358,8 @@ def main() -> None:
 
     1. Create a simple, believable dataset with one treated state (NJ) and
         several donor states (NY, CT, MA, DE, MD).
-    2. Define what "good matching" means before the policy change
-        (pre-treatment), using the prior years' outcomes and a couple of
-        steady covariates.
+    2. Define what good matching means before the policy change (pre-treatment),
+        using the prior years' outcomes and a couple of covariates.
     3. Ask an optimizer to build a "synthetic NJ" by combining donors
         with weights that best reproduce NJ's pre-treatment behavior.
     4. Compare NJ to its synthetic twin after the policy and
