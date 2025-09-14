@@ -4,7 +4,7 @@ title: "From Difference-in-Differences to Synthetic Control: Rethinking Card & K
 date: "2025-09-13"
 ---
 
-First, a big thank you to [Aaron Mamula's thoughtful replication](https://aaronmams.github.io/Card-Krueger-Replication/) of Card & Krueger's classic 1994 minimum-wage study. His R-based walk-through of the survey data, regression results, and sensitivity checks are clear and pedagogically valuable. Whether you are a newcomer to the causal inference research literature, or a data analytics professional interested in transparent, reproducible workflows, Aaron's replication is one of the best references. It shows how careful design and open code can bring an iconic study back to life.
+First, a big thank you to [Aaron Mamula's thoughtful replication](https://aaronmams.github.io/Card-Krueger-Replication/) of Card & Krueger's classic 1994 minimum-wage study. His R-based walk-through of the survey data, regression results, and sensitivity checks are clear and pedagogically valuable. Whether you are a newcomer to causal inference or a data analytics professional interested in transparent, reproducible workflows, Aaron's replication is one of the best references. It shows how careful design and open code can bring an iconic study back to life.
 
 Revisiting classical studies like this always raises the same question for me:
 
@@ -14,7 +14,7 @@ Revisiting classical studies like this always raises the same question for me:
 
 When David Card and Alan Krueger compared fast-food employment in New Jersey (which raised its minimum wage) against Pennsylvania (which did not), their finding was revolutionary: **employment did not fall**. In fact, it rose slightly.
 
-The study challenged decades of textbook predictions, where a binding minimum wage was assumed to cut jobs. More importantly, it helped launch the [credibility revolution](https://en.wikipedia.org/wiki/Credibility_revolution) in economics, a move toward natural experiments and data-driven causal inference.
+The study challenged decades of textbook predictions, where a binding minimum wage was assumed to cut jobs. More importantly to me though, it helped launch the [credibility revolution](https://en.wikipedia.org/wiki/Credibility_revolution) in economics, a move toward natural experiments and data-driven causal inference.
 
 ## The Donor Pool Dilemma
 
@@ -24,12 +24,12 @@ This is where [Synthetic Control Method](https://en.wikipedia.org/wiki/Synthetic
 
 ## Modern Tools for a Classic Case
 
-Today, using [Synth](https://cran.r-project.org/web/packages/Synth/index.html) in R or [cvxpy](https://github.com/cvxpy/cvxpy) in Python, we can:
+Today, using [Synth](https://cran.r-project.org/web/packages/Synth/index.html) in R or [cvxpy](https://github.com/cvxpy/cvxpy) in Python, we can do the following.
 
-- **Construct synthetic New Jersey**: combining donors like NY, CT, MA, and DE with weights chosen by optimization.
-- **Match richer predictors**: not just pre-period employment, but industry composition, wage levels, demographic traits.
-- **Test robustness**: by running placebo SCMs (pretend each donor was treated) and comparing effect sizes.
-- **Improve inference**: using bootstrap or wild-cluster standard errors rather than simple OLS SEs.
+- **Construct a synthetic New Jersey**: Build a **weighted combination** of donor states such as NY, CT, MA, and DE. The weights are chosen by an optimizer so that the synthetic version closely mirrors NJ before the policy change.
+- **Match a richer set of predictors**: Go beyond pre-treatment employment levels by also **considering other factors** such as industry composition, wage levels, and demographic traits.
+- **Check robustness**: Run **placebo SCMs** by pretending each donor state was treated, and compare their estimated effects to NJ's (truly treated state). This shows whether NJ's result looks unique or just typical noise.
+- **Strengthen inference**: Replace simple Ordinary Least Square standard errors with more reliable methods, such as **bootstrap resampling** or **wild-cluster standard errors**, which can better capture uncertainty.
 
 In other words, SCM does not just re-estimate Card & Krueger, it can even reframe the entire exercise with a different lens on counterfactual construction.
 
@@ -45,10 +45,25 @@ The Card & Krueger study triggered decades of replications, criticisms, and meth
 
 ## Show Me Some Code
 
-Refer to the `main()` function in the script below to get a sense of what is happening.
+Refer to the docstring and `main()` function in the script below to get a sense of what is happening.
 
 ```python
-"""Application of Synthetic Control Method on Card & Krueger (1994)."""
+"""Application of Synthetic Control Method on Card & Krueger (1994).
+
+Process
+-------
+1. Create a simple, believable dataset with one treated state (NJ) and
+    several donor states (NY, CT, MA, DE, MD).
+2. Define what good matching means before the policy change (pre-treatment),
+    using the prior years' outcomes and a couple of covariates.
+3. Ask an optimizer to build a "synthetic NJ" by combining donors
+    with weights that best reproduce NJ's pre-treatment behavior.
+4. Compare NJ to its synthetic twin after the policy and
+    read the difference as the policy effect.
+5. As a rough credibility check, we run "placebo" versions
+    of the same exercise, pretending each donor were treated, to see
+    if NJ's pattern looks special.
+"""
 
 from typing import Iterable, Sequence
 
@@ -354,20 +369,7 @@ def placebo_gaps(
 
 
 def main() -> None:
-    """Orchestrate the process.
-
-    1. Create a simple, believable dataset with one treated state (NJ) and
-        several donor states (NY, CT, MA, DE, MD).
-    2. Define what good matching means before the policy change (pre-treatment),
-        using the prior years' outcomes and a couple of covariates.
-    3. Ask an optimizer to build a "synthetic NJ" by combining donors
-        with weights that best reproduce NJ's pre-treatment behavior.
-    4. Compare NJ to its synthetic twin after the policy and
-        read the difference as the policy effect.
-    5. As a rough credibility check, we run "placebo" versions
-        of the same exercise, pretending each donor were treated, to see
-        if NJ's pattern looks special.
-    """
+    """Orchestrate the process."""
     # 1) Data: a small, realistic toy example
     treated = "NJ"
     donors = ("NY", "CT", "MA", "DE", "MD")
